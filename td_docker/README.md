@@ -66,9 +66,9 @@ Le sql est accesible à http://localhost:8080
 
 ## Exercice 3 proxy web
 
-1. Proposer une solution de reverse proxy via docker-compose qui permet de
+### Proposer une solution de reverse proxy via docker-compose qui permet de ...
 
-a. créer deux siteweb (simples : web1 et web2) lancés sur deux serveurs web (Nginx ou apache) différents
+1. créer deux siteweb (simples : web1 et web2) lancés sur deux serveurs web (Nginx ou apache) différents
 
 Installer nginx
 ```
@@ -106,7 +106,7 @@ Relancer la ligne de commande ci-dessous dans la console pour mettre à jours ce
 docker-compose -f creation_site.yml up
 ```
 
-b. créer un serveur de proxy qui va rediriger les requête vers le site 1 ou site 2 selon l’url : site1.localhost ou site2.localhost.
+2. créer un serveur de proxy qui va rediriger les requête vers le site 1 ou site 2 selon l’url : site1.localhost ou site2.localhost.
 
 Créer un répertoire proxy-conf puis créer un ficher default.conf et stocker les codes ci-dessous dedans:
 ```
@@ -158,3 +158,51 @@ Lancer la ligne de commande ci-dessous dans une autre console (la dernière peut
 docker-compose -f creation_proxy.yml up
 ```
 Aller à http://localhost http://site1.localhost et http://site2.localhost pour voir les résultats.
+
+## Exercice 4 Traefik
+
+1. Docker-compose basic example
+
+Créer un fichier qui contient les codes suivants:
+```
+version: "3.3"
+
+services:
+
+  traefik:
+    image: "traefik:v2.8"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      # Traefik will listen on port 8080 by default for API request.
+      - "--api.insecure=true"
+      # Enabling docker provider
+      - "--providers.docker=true"
+      # Do not expose containers unless explicitly told so
+      - "--providers.docker.exposedbydefault=false"
+      # Traefik will listen to incoming request on the port 80 (HTTP)
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  whoami:
+    image: "traefik/whoami"
+    container_name: "simple-service"
+    labels:
+      # Explicitly tell Traefik to expose this container
+      - "traefik.enable=true"
+      # The domain the service will respond to
+      - "traefik.http.routers.whoami.rule=Host(`localhost`)"
+      # Allow request only from the predefined entry point named "web"
+      - "traefik.http.routers.whoami.entrypoints=web"
+```
+Dans le même répertoire, lancer un terminal est executer les commandes suivantes:
+```
+docker-compose up -d
+```
+Aller à http://localhost ou http://localhost:80 pour voir les informations du service whoami (a tiny Go server that prints os information and HTTP request to output).
+
+Aller à http://localhost:8080 pour voir les configurations dans Traefik API
