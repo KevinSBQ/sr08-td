@@ -22,6 +22,7 @@ Le container myadminer a été crée et est en cours d'execution.
 
 4. Connecter à votre base de données via adminer
 Accéder au navigateur, aller à http://localhost:8080, puis saisir les champs :
+
 | Système | PostgreSQL |
 | -------- | -------- |
 | Serveur   | db   |
