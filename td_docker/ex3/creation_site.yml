@@ -1,0 +1,10 @@
+version: '3.1'
+services:
+  web1:
+    image: nginx 
+    volumes:
+      - ./web1:/usr/share/nginx/html
+  web2:
+    image: nginx
+    volumes:
+      - ./web2:/usr/share/nginx/html
